@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-background: #f9f9fc;
+    --color-surface: #f9f9fc;
+    --color-surface-subdued: #f4f4f1;
+    --color-surface-elevated: #ebebe6;
+    --color-on-surface: #1a1c1e;
+    --color-outline: #717975;
+    --color-outline-variant: #c0c8c3;
+    --color-primary: #134235;
+    --color-primary-container: #2d5a4c;
+    --color-secondary: #2b6957;
+  }
+
+  .dark {
+    --color-background: #191b1d;
+    --color-surface: #191b1d;
+    --color-surface-subdued: #222529;
+    --color-surface-elevated: #2c3036;
+    --color-on-surface: #f9f9fc;
+    --color-outline: #8b938e;
+    --color-outline-variant: #404945;
+    --color-primary: #a1d1bf;
+    --color-primary-container: #2d5a4c;
+    --color-secondary: #95d3bd;
+  }
+
+  .material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 20px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(113, 121, 117, 0.25);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(113, 121, 117, 0.45);
+}
+
+@keyframes calmPulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.98); }
+  50% { opacity: 0.85; transform: scale(1.02); }
+}
+.animate-calm-pulse {
+  animation: calmPulse 4s ease-in-out infinite;
+}

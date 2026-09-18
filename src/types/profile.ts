@@ -19,6 +19,9 @@ export interface UserProfile {
   mindspace_score?: number;
   stage?: string;
   daily_screen_target_minutes?: number;
+  xp?: number;
+  level?: number;
+  current_stage_id?: number;
   created_at?: string;
   updated_at?: string;
 }

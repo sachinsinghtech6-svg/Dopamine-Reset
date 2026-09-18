@@ -28,6 +28,11 @@ export const SideNavBar: React.FC<SideNavBarProps> = ({
     { id: 'edge', label: 'System Feedback', icon: 'devices' },
   ];
 
+  const phase5Items: { id: string; label: string; icon: string; badge?: string }[] = [
+    { id: 'progress', label: 'Recovery Journey', icon: 'spa', badge: 'Stage 2' },
+    { id: 'challenges', label: 'Active Challenges', icon: 'flag', badge: '+100 XP' },
+  ];
+
   return (
     <aside
       aria-label="Application Navigation"
@@ -112,6 +117,50 @@ export const SideNavBar: React.FC<SideNavBarProps> = ({
                       item.badge === 'Phase 4'
                         ? 'bg-primary-fixed/50 text-on-primary-fixed dark:bg-tertiary-container'
                         : 'bg-surface-container text-outline'
+                    }`}
+                  >
+                    {item.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Navigation Section 3: Phase 5 Recovery Journey */}
+        <div className="space-y-1 pt-2 border-t border-outline-variant/30">
+          <p className="px-3 text-[11px] font-semibold text-outline uppercase tracking-wider mb-2">
+            Recovery Journey
+          </p>
+          {phase5Items.map((item) => {
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => onTabChange(item.id)}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all min-h-[44px] ${
+                  isActive
+                    ? 'bg-surface-container-lowest dark:bg-surface text-primary dark:text-inverse-primary shadow-xs'
+                    : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/60'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`material-symbols-outlined text-[20px] ${
+                      isActive ? 'text-primary dark:text-inverse-primary' : 'text-primary dark:text-inverse-primary'
+                    }`}
+                  >
+                    {item.icon}
+                  </span>
+                  <span>{item.label}</span>
+                </div>
+                {item.badge && (
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                      item.badge === 'Stage 2'
+                        ? 'bg-secondary-container/60 text-on-secondary-container'
+                        : 'bg-primary-fixed/50 text-on-primary-fixed dark:bg-tertiary-container'
                     }`}
                   >
                     {item.badge}

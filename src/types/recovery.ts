@@ -55,4 +55,6 @@ export type RecoveryViewKey =
   | 'analytics'
   | 'journal'
   | 'coach'
-  | 'edge';
+  | 'edge'
+  | 'progress'
+  | 'challenges';

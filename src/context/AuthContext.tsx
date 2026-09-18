@@ -1,18 +1,24 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import type { User, Session } from '@supabase/supabase-js';
+import type { UserProfile } from '@/types/profile';
 
 export interface AuthContextValue {
   user: User | null;
   session: Session | null;
+  profile: UserProfile | null;
   loading: boolean;
+  loadingProfile: boolean;
   error: string | null;
   isConfigured: boolean;
   isMockMode: boolean;
   toggleMockMode: () => void;
   signInWithEmail: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signUpWithEmail: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signUpWithEmail: (email: string, password: string, fullName?: string) => Promise<{ success: boolean; error?: string }>;
   signInWithMagicLink: (email: string) => Promise<{ success: boolean; error?: string }>;
+  resetPasswordForEmail: (email: string) => Promise<{ success: boolean; error?: string }>;
+  saveOnboardingData: (data: Partial<UserProfile>) => Promise<{ success: boolean; error?: string }>;
+  refreshProfile: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -21,11 +27,41 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadingProfile, setLoadingProfile] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isMockMode, setIsMockMode] = useState<boolean>(false);
 
   const isDev = import.meta.env.DEV;
+
+  const fetchProfile = useCallback(async (userId: string) => {
+    if (!supabase) return;
+    setLoadingProfile(true);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
+
+      if (error) {
+        console.warn('[Dopamine Reset] Profile fetch warning:', error.message);
+      } else if (data) {
+        setProfile(data as UserProfile);
+      }
+    } catch (err) {
+      console.warn('[Dopamine Reset] Profile fetch error:', err);
+    } finally {
+      setLoadingProfile(false);
+    }
+  }, []);
+
+  const refreshProfile = useCallback(async () => {
+    if (user) {
+      await fetchProfile(user.id);
+    }
+  }, [user, fetchProfile]);
 
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase) {
@@ -39,6 +75,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       setSession(session);
       setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      }
       setLoading(false);
     });
 
@@ -47,11 +86,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      } else {
+        setProfile(null);
+      }
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [fetchProfile]);
 
   const toggleMockMode = () => {
     if (!isDev) {
@@ -64,15 +108,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: 'dev-demo-user-108',
         email: 'serene.focus@dopaminereset.app',
         app_metadata: {},
-        user_metadata: { full_name: 'Serene Explorer' },
+        user_metadata: { full_name: 'Julian Vance' },
         aud: 'authenticated',
         created_at: new Date().toISOString(),
       } as User;
 
+      const mockProfile: UserProfile = {
+        id: 'dev-demo-user-108',
+        email: 'serene.focus@dopaminereset.app',
+        full_name: 'Julian Vance',
+        primary_goal: 'focus',
+        target_platforms: ['Instagram', 'YouTube', 'TikTok'],
+        daily_screen_time: '4 - 6 hours',
+        peak_vulnerability_time: 'Late afternoon fatigue',
+        triggers: ['Boredom & Stillness', 'Workplace Stress'],
+        interruption_frequency: 'Sometimes (3-5x/hr)',
+        evening_reflection_time: '21:00',
+        quiet_window_start: '22:30',
+        quiet_window_end: '07:00',
+        weekend_sleep_extension: true,
+        baseline_confidence: 94,
+        onboarding_completed: false,
+      };
+
       setUser(mockUser);
+      setProfile(mockProfile);
       setIsMockMode(true);
     } else {
       setUser(null);
+      setProfile(null);
       setSession(null);
       setIsMockMode(false);
     }
@@ -98,6 +162,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       setUser(data.user);
       setSession(data.session);
+      if (data.user) {
+        await fetchProfile(data.user.id);
+      }
       return { success: true };
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Sign in failed';
@@ -106,20 +173,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUpWithEmail = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+  const signUpWithEmail = async (
+    email: string,
+    password: string,
+    fullName?: string
+  ): Promise<{ success: boolean; error?: string }> => {
     setError(null);
     if (!isSupabaseConfigured || !supabase) {
       return { success: false, error: 'Authentication service not configured.' };
     }
 
     try {
-      const { data, error } = await supabase.auth.signUp({ email, password });
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName || email.split('@')[0],
+          },
+        },
+      });
       if (error) {
         setError(error.message);
         return { success: false, error: error.message };
       }
       setUser(data.user);
       setSession(data.session);
+      if (data.user) {
+        await fetchProfile(data.user.id);
+      }
       return { success: true };
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Sign up failed';
@@ -135,7 +217,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const { error } = await supabase.auth.signInWithOtp({ email });
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: window.location.origin,
+        },
+      });
       if (error) {
         setError(error.message);
         return { success: false, error: error.message };
@@ -148,9 +235,69 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const resetPasswordForEmail = async (email: string): Promise<{ success: boolean; error?: string }> => {
+    setError(null);
+    if (!isSupabaseConfigured || !supabase) {
+      return { success: false, error: 'Authentication service not configured.' };
+    }
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) {
+        setError(error.message);
+        return { success: false, error: error.message };
+      }
+      return { success: true };
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Password reset request failed';
+      setError(msg);
+      return { success: false, error: msg };
+    }
+  };
+
+  const saveOnboardingData = async (
+    data: Partial<UserProfile>
+  ): Promise<{ success: boolean; error?: string }> => {
+    if (isMockMode) {
+      setProfile((prev) => (prev ? { ...prev, ...data, onboarding_completed: true } : null));
+      return { success: true };
+    }
+
+    if (!user || !supabase) {
+      return { success: false, error: 'User not authenticated.' };
+    }
+
+    try {
+      const payload = {
+        id: user.id,
+        email: user.email,
+        ...data,
+        onboarding_completed: true,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error } = await supabase
+        .from('profiles')
+        .upsert(payload, { onConflict: 'id' });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      await fetchProfile(user.id);
+      return { success: true };
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to persist calibration profile';
+      return { success: false, error: msg };
+    }
+  };
+
   const signOut = async (): Promise<void> => {
     if (isMockMode) {
       setUser(null);
+      setProfile(null);
       setSession(null);
       setIsMockMode(false);
       return;
@@ -158,6 +305,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (supabase) {
       await supabase.auth.signOut();
       setUser(null);
+      setProfile(null);
       setSession(null);
     }
   };
@@ -167,7 +315,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         user,
         session,
+        profile,
         loading,
+        loadingProfile,
         error,
         isConfigured: isSupabaseConfigured,
         isMockMode,
@@ -175,6 +325,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signInWithEmail,
         signUpWithEmail,
         signInWithMagicLink,
+        resetPasswordForEmail,
+        saveOnboardingData,
+        refreshProfile,
         signOut,
       }}
     >

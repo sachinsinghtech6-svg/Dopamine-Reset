@@ -12,14 +12,14 @@ export const SideNavBar: React.FC<SideNavBarProps> = ({
 }) => {
   const { isMockMode, toggleMockMode } = useAuth();
 
-  const navItems = [
-    { id: 'dashboard', label: 'Recovery Canvas', icon: 'spa', badge: 'Core' },
-    { id: 'checkin', label: 'Urge Check-In', icon: 'timer', badge: 'Phase 3' },
-    { id: 'focus', label: 'Quiet Session', icon: 'lens_blur', badge: 'Phase 3' },
-    { id: 'journal', label: 'Reflections', icon: 'edit_note', badge: 'Phase 4' },
-    { id: 'coach', label: 'AI Coach', icon: 'psychology', badge: 'Phase 4' },
-    { id: 'stages', label: 'Stages & Growth', icon: 'trending_up', badge: 'Phase 5' },
-    { id: 'settings', label: 'Preferences', icon: 'tune', badge: 'Phase 6' },
+  const navItems: { id: string; label: string; icon: string; badge?: string }[] = [
+    { id: 'dashboard', label: 'Dashboard', icon: 'dashboard', badge: 'Core' },
+    { id: 'checkin', label: 'Today (Check-in)', icon: 'today', badge: 'Daily' },
+    { id: 'focus', label: 'Focus Session', icon: 'timer', badge: '+20 XP' },
+    { id: 'insight', label: 'AI Coach', icon: 'psychology' },
+    { id: 'limit', label: 'Supportive Guard', icon: 'shield' },
+    { id: 'reset', label: 'Offline Reset', icon: 'self_improvement' },
+    { id: 'done', label: 'Completion State', icon: 'task_alt' },
   ];
 
   return (

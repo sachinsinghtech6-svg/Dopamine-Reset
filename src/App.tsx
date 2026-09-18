@@ -4,11 +4,31 @@ import { ToastProvider } from '@/context/ToastContext';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { AppShell } from '@/components/layout/AppShell';
-import { AppPlaceholder } from '@/pages/AppPlaceholder';
 import { DesignSystemShowcase } from '@/pages/DesignSystemShowcase';
 import { AuthContainer } from '@/components/auth/AuthContainer';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
 import { Brandmark } from '@/components/ui/Brandmark';
+
+import { RecoveryProvider, useRecovery } from '@/context/RecoveryContext';
+import { RecoveryHub } from '@/components/recovery/RecoveryHub';
+
+const AuthenticatedRecoveryApp: React.FC<{
+  currentView: 'app' | 'showcase';
+  setCurrentView: (view: 'app' | 'showcase') => void;
+}> = ({ currentView, setCurrentView }) => {
+  const { activeView, setActiveView } = useRecovery();
+
+  return (
+    <AppShell
+      currentView={currentView}
+      onViewChange={setCurrentView}
+      activeTab={activeView}
+      onTabChange={(tab) => setActiveView(tab as any)}
+    >
+      <RecoveryHub />
+    </AppShell>
+  );
+};
 
 const MainNavigator: React.FC = () => {
   const { user, profile, loading } = useAuth();
@@ -73,16 +93,14 @@ const MainNavigator: React.FC = () => {
     return <OnboardingWizard />;
   }
 
-  // 3. Authenticated & Onboarded -> Full Application Shell
+  // 3. Authenticated & Onboarded -> Core Recovery Experience
   return (
-    <AppShell
-      currentView="app"
-      onViewChange={setCurrentView}
-      activeTab={activeTab}
-      onTabChange={setActiveTab}
-    >
-      <AppPlaceholder />
-    </AppShell>
+    <RecoveryProvider>
+      <AuthenticatedRecoveryApp
+        currentView={currentView}
+        setCurrentView={setCurrentView}
+      />
+    </RecoveryProvider>
   );
 };
 

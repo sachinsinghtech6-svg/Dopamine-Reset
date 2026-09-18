@@ -10,11 +10,11 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   onTabChange = () => {},
 }) => {
   const items = [
-    { id: 'dashboard', label: 'Canvas', icon: 'spa' },
-    { id: 'checkin', label: 'Check-in', icon: 'timer' },
-    { id: 'focus', label: 'Focus', icon: 'lens_blur' },
-    { id: 'journal', label: 'Journal', icon: 'edit_note' },
-    { id: 'coach', label: 'Coach', icon: 'psychology' },
+    { id: 'dashboard', label: 'Home', icon: 'home' },
+    { id: 'checkin', label: 'Today', icon: 'today' },
+    { id: 'focus', label: 'Focus', icon: 'play_arrow', isPill: true },
+    { id: 'insight', label: 'Coach', icon: 'psychology' },
+    { id: 'reset', label: 'Reset', icon: 'self_improvement' },
   ];
 
   return (
@@ -25,6 +25,22 @@ export const BottomNav: React.FC<BottomNavProps> = ({
       <div className="flex items-center justify-around w-full max-w-md mx-auto">
         {items.map((item) => {
           const isActive = activeTab === item.id;
+          if (item.isPill) {
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => onTabChange(item.id)}
+                className="flex flex-col items-center justify-center min-w-[56px] min-h-[48px] py-1 px-2 rounded-lg transition-all"
+              >
+                <div className="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center -mt-3 shadow-md">
+                  <span className="material-symbols-outlined text-lg">play_arrow</span>
+                </div>
+                <span className="text-[10px] mt-0.5 text-on-surface font-medium">Focus</span>
+              </button>
+            );
+          }
+
           return (
             <button
               key={item.id}

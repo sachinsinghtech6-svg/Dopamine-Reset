@@ -14,6 +14,11 @@ export interface UserProfile {
   weekend_sleep_extension: boolean;
   baseline_confidence: number;
   onboarding_completed: boolean;
+  streak_days?: number;
+  freezes_remaining?: number;
+  mindspace_score?: number;
+  stage?: string;
+  daily_screen_target_minutes?: number;
   created_at?: string;
   updated_at?: string;
 }

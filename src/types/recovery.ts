@@ -51,4 +51,8 @@ export type RecoveryViewKey =
   | 'reset'
   | 'done'
   | 'empty'
-  | 'skeleton';
+  | 'skeleton'
+  | 'analytics'
+  | 'journal'
+  | 'coach'
+  | 'edge';

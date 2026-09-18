@@ -11,10 +11,10 @@ export const BottomNav: React.FC<BottomNavProps> = ({
 }) => {
   const items = [
     { id: 'dashboard', label: 'Home', icon: 'home' },
-    { id: 'checkin', label: 'Today', icon: 'today' },
+    { id: 'analytics', label: 'Stats', icon: 'monitoring' },
     { id: 'focus', label: 'Focus', icon: 'play_arrow', isPill: true },
-    { id: 'insight', label: 'Coach', icon: 'psychology' },
-    { id: 'reset', label: 'Reset', icon: 'self_improvement' },
+    { id: 'journal', label: 'Journal', icon: 'self_improvement' },
+    { id: 'coach', label: 'Coach', icon: 'psychology' },
   ];
 
   return (

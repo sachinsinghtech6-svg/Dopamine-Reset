@@ -118,7 +118,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({ currentView, onViewChange 
                 {user?.user_metadata?.full_name || (user ? 'Active User' : 'Guest')}
               </span>
               <span className="text-[10px] text-outline leading-tight">
-                {user ? 'Phase 1 Ready' : 'Exploring'}
+                {user ? 'Phase 4 Active' : 'Exploring'}
               </span>
             </div>
           </div>

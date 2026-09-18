@@ -10,6 +10,7 @@ import { OfflineResetView } from './OfflineResetView';
 import { AllDoneView } from './AllDoneView';
 import { RecoveryEmptyState } from './RecoveryEmptyState';
 import { RecoverySkeleton } from './RecoverySkeleton';
+import { Phase4Hub } from '@/components/analytics/Phase4Hub';
 import type { RecoveryViewKey } from '@/types/recovery';
 
 export const RecoveryHub: React.FC = () => {
@@ -50,6 +51,10 @@ export const RecoveryHub: React.FC = () => {
             <option value="done">8. All Tasks Completed ("You're done for today. 🌱")</option>
             <option value="empty">9. First-Day New User / Orientation</option>
             <option value="skeleton">10. Loading Skeletons</option>
+            <option value="analytics">11. Phase 4: Quiet Analytics Hub</option>
+            <option value="journal">12. Phase 4: Private Journal</option>
+            <option value="coach">13. Phase 4: AI Recovery Coach</option>
+            <option value="edge">14. Phase 4: Viewports & Edge States</option>
           </select>
         </div>
       </div>
@@ -114,6 +119,16 @@ export const RecoveryHub: React.FC = () => {
 
         {activeView === 'skeleton' && (
           <RecoverySkeleton onExit={() => setActiveView('dashboard')} />
+        )}
+
+        {(activeView === 'analytics' ||
+          activeView === 'journal' ||
+          activeView === 'coach' ||
+          activeView === 'edge') && (
+          <Phase4Hub
+            initialTab={activeView}
+            onTabChange={(tab) => setActiveView(tab)}
+          />
         )}
       </div>
     </div>

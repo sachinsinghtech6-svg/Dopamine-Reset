@@ -18,6 +18,8 @@ export interface AuthContextValue {
   signInWithMagicLink: (email: string) => Promise<{ success: boolean; error?: string }>;
   resetPasswordForEmail: (email: string) => Promise<{ success: boolean; error?: string }>;
   saveOnboardingData: (data: Partial<UserProfile>) => Promise<{ success: boolean; error?: string }>;
+  updateProfile: (data: Partial<UserProfile>) => Promise<{ success: boolean; error?: string }>;
+  updatePassword: (password: string) => Promise<{ success: boolean; error?: string }>;
   refreshProfile: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -294,6 +296,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateProfile = async (
+    data: Partial<UserProfile>
+  ): Promise<{ success: boolean; error?: string }> => {
+    if (isMockMode) {
+      setProfile((prev) => (prev ? { ...prev, ...data } : null));
+      return { success: true };
+    }
+
+    if (!user || !supabase) {
+      return { success: false, error: 'User not authenticated.' };
+    }
+
+    try {
+      const payload = {
+        id: user.id,
+        ...data,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error } = await supabase
+        .from('profiles')
+        .upsert(payload, { onConflict: 'id' });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      await fetchProfile(user.id);
+      return { success: true };
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to update profile';
+      return { success: false, error: msg };
+    }
+  };
+
+  const updatePassword = async (
+    password: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    if (isMockMode) {
+      return { success: true };
+    }
+
+    if (!user || !supabase) {
+      return { success: false, error: 'User not authenticated.' };
+    }
+
+    try {
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) {
+        return { success: false, error: error.message };
+      }
+      return { success: true };
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to update password';
+      return { success: false, error: msg };
+    }
+  };
+
   const signOut = async (): Promise<void> => {
     if (isMockMode) {
       setUser(null);
@@ -327,6 +387,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signInWithMagicLink,
         resetPasswordForEmail,
         saveOnboardingData,
+        updateProfile,
+        updatePassword,
         refreshProfile,
         signOut,
       }}

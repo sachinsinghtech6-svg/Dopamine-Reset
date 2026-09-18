@@ -57,4 +57,5 @@ export type RecoveryViewKey =
   | 'coach'
   | 'edge'
   | 'progress'
-  | 'challenges';
+  | 'challenges'
+  | 'settings';

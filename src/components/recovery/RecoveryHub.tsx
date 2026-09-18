@@ -12,6 +12,7 @@ import { RecoveryEmptyState } from './RecoveryEmptyState';
 import { RecoverySkeleton } from './RecoverySkeleton';
 import { Phase4Hub } from '@/components/analytics/Phase4Hub';
 import { Phase5ProgressHub } from '@/components/progress/Phase5ProgressHub';
+import { Phase6SettingsHub } from '@/components/settings/Phase6SettingsHub';
 import type { RecoveryViewKey } from '@/types/recovery';
 
 export const RecoveryHub: React.FC = () => {
@@ -56,7 +57,8 @@ export const RecoveryHub: React.FC = () => {
             <option value="journal">12. Phase 4: Private Journal</option>
             <option value="coach">13. Phase 4: AI Recovery Coach</option>
             <option value="edge">14. Phase 4: Viewports & Edge States</option>
-            <option value="progress">15. Phase 5: Recovery Track & Journey</option>
+            <option value="progress">15. Phase 5: Recovery Track &amp; Journey</option>
+            <option value="settings">16. Phase 6: Settings, Profile &amp; Sanctuary Controls</option>
           </select>
         </div>
       </div>
@@ -136,6 +138,8 @@ export const RecoveryHub: React.FC = () => {
         {(activeView === 'progress' || activeView === 'challenges') && (
           <Phase5ProgressHub />
         )}
+
+        {activeView === 'settings' && <Phase6SettingsHub />}
       </div>
     </div>
   );

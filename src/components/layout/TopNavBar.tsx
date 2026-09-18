@@ -8,9 +8,10 @@ import { Badge } from '../ui/Badge';
 export interface TopNavBarProps {
   currentView: 'app' | 'showcase';
   onViewChange: (view: 'app' | 'showcase') => void;
+  onNavigateSettings?: () => void;
 }
 
-export const TopNavBar: React.FC<TopNavBarProps> = ({ currentView, onViewChange }) => {
+export const TopNavBar: React.FC<TopNavBarProps> = ({ currentView, onViewChange, onNavigateSettings }) => {
   const { theme, effectiveTheme, setTheme } = useTheme();
   const { user, isConfigured, isMockMode, toggleMockMode } = useAuth();
 
@@ -111,17 +112,23 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({ currentView, onViewChange 
           </div>
 
           {/* User Profile Avatar */}
-          <div className="flex items-center gap-2 pl-2 border-l border-outline-variant/40">
-            <Avatar size="sm" name={user?.user_metadata?.full_name || user?.email || 'Guest'} />
+          <button
+            type="button"
+            onClick={onNavigateSettings}
+            className="flex items-center gap-2 pl-2 border-l border-outline-variant/40 hover:opacity-80 transition-opacity min-h-[44px] cursor-pointer"
+            title="System & Account Sanctuary"
+            aria-label="Open Settings and Profile Sanctuary"
+          >
+            <Avatar size="sm" name={user?.user_metadata?.full_name || user?.email || 'Alex Morgan'} />
             <div className="hidden lg:flex flex-col text-left">
               <span className="text-xs font-medium text-on-surface leading-tight max-w-[100px] truncate">
-                {user?.user_metadata?.full_name || (user ? 'Active User' : 'Guest')}
+                {user?.user_metadata?.full_name || (user ? 'Alex Morgan' : 'Guest')}
               </span>
-              <span className="text-[10px] text-outline leading-tight">
-                {user ? 'Phase 4 Active' : 'Exploring'}
+              <span className="text-[10px] text-secondary dark:text-inverse-primary font-medium leading-tight">
+                {user ? 'Level 7 — Focused' : 'Exploring'}
               </span>
             </div>
-          </div>
+          </button>
         </div>
       </div>
     </header>

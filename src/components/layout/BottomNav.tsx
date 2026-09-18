@@ -14,7 +14,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
     { id: 'progress', label: 'Stages', icon: 'spa' },
     { id: 'focus', label: 'Focus', icon: 'play_arrow', isPill: true },
     { id: 'analytics', label: 'Stats', icon: 'monitoring' },
-    { id: 'coach', label: 'Coach', icon: 'psychology' },
+    { id: 'settings', label: 'Settings', icon: 'settings' },
   ];
 
   return (

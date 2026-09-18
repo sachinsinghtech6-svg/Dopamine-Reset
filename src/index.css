@@ -60,6 +60,21 @@
       scroll-behavior: auto !important;
     }
   }
+
+  /* User-toggled reduced motion */
+  html.reduced-motion *,
+  html.reduced-motion ::before,
+  html.reduced-motion ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* User-toggled high contrast */
+  html.high-contrast {
+    filter: contrast(1.2);
+  }
 }
 
 .custom-scrollbar::-webkit-scrollbar {

@@ -28,7 +28,11 @@ export const AppShell: React.FC<AppShellProps> = ({
   return (
     <div className="min-h-screen flex flex-col bg-background text-on-surface transition-colors duration-200">
       {/* Top Navigation */}
-      <TopNavBar currentView={currentView} onViewChange={onViewChange} />
+      <TopNavBar
+        currentView={currentView}
+        onViewChange={onViewChange}
+        onNavigateSettings={() => handleTabChange('settings')}
+      />
 
       {/* Main Area: Sidebar + Canvas */}
       <div className="flex-1 flex w-full max-w-7xl mx-auto min-w-0">

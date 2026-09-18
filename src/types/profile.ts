@@ -1,3 +1,5 @@
+import type { UserSettingsState } from './settings';
+
 export interface UserProfile {
   id: string;
   email: string | null;
@@ -22,6 +24,7 @@ export interface UserProfile {
   xp?: number;
   level?: number;
   current_stage_id?: number;
+  settings?: UserSettingsState;
   created_at?: string;
   updated_at?: string;
 }

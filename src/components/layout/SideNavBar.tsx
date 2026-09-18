@@ -33,6 +33,10 @@ export const SideNavBar: React.FC<SideNavBarProps> = ({
     { id: 'challenges', label: 'Active Challenges', icon: 'flag', badge: '+100 XP' },
   ];
 
+  const phase6Items: { id: string; label: string; icon: string; badge?: string }[] = [
+    { id: 'settings', label: 'Settings & Privacy', icon: 'settings', badge: 'Phase 6' },
+  ];
+
   return (
     <aside
       aria-label="Application Navigation"
@@ -163,6 +167,44 @@ export const SideNavBar: React.FC<SideNavBarProps> = ({
                         : 'bg-primary-fixed/50 text-on-primary-fixed dark:bg-tertiary-container'
                     }`}
                   >
+                    {item.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Navigation Section 4: Phase 6 System Sanctuary */}
+        <div className="space-y-1 pt-2 border-t border-outline-variant/30">
+          <p className="px-3 text-[11px] font-semibold text-outline uppercase tracking-wider mb-2">
+            System Sanctuary
+          </p>
+          {phase6Items.map((item) => {
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => onTabChange(item.id)}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all min-h-[44px] ${
+                  isActive
+                    ? 'bg-surface-container-lowest dark:bg-surface text-primary dark:text-inverse-primary shadow-xs'
+                    : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/60'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`material-symbols-outlined text-[20px] ${
+                      isActive ? 'text-primary dark:text-inverse-primary' : 'text-outline'
+                    }`}
+                  >
+                    {item.icon}
+                  </span>
+                  <span>{item.label}</span>
+                </div>
+                {item.badge && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-secondary-container/60 text-on-secondary-container dark:bg-tertiary-container">
                     {item.badge}
                   </span>
                 )}

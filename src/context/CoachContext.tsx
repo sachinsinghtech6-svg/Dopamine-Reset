@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import type {
   CoachMessage,
   CoachPrivacySettings,
@@ -6,6 +6,7 @@ import type {
   CoachExperiment,
 } from '@/types/analytics';
 import { useAuth } from './AuthContext';
+import { useSettings } from './SettingsContext';
 
 interface CoachContextType {
   messages: CoachMessage[];
@@ -54,20 +55,31 @@ const CoachContext = createContext<CoachContextType | undefined>(undefined);
 
 export const CoachProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { profile } = useAuth();
+  const { settings } = useSettings();
+  const { aiPerimeter } = settings;
+
   const [messages, setMessages] = useState<CoachMessage[]>(INITIAL_MESSAGES);
   const [isThinking, setIsThinking] = useState<boolean>(false);
   const [privacySettings, setPrivacySettings] = useState<CoachPrivacySettings>({
-    includeDailyAnalytics: true,
-    shareJournalEntries: false,
+    includeDailyAnalytics: aiPerimeter.usageDurations,
+    shareJournalEntries: aiPerimeter.journalReflections,
     localMemoryPurgeOnExit: true,
   });
 
+  useEffect(() => {
+    setPrivacySettings((prev) => ({
+      ...prev,
+      includeDailyAnalytics: aiPerimeter.usageDurations,
+      shareJournalEntries: aiPerimeter.journalReflections,
+    }));
+  }, [aiPerimeter]);
+
   const recoveryContext: RecoveryContextInfo = {
-    phase: profile?.stage || 'Stage 1: Awareness',
-    streakDays: profile?.streak_days || 18,
-    cognitiveScore: profile?.mindspace_score || 78,
+    phase: aiPerimeter.recoveryProgress ? (profile?.stage || 'Stage 1: Awareness') : 'Perimeter Restricted',
+    streakDays: aiPerimeter.recoveryProgress ? (profile?.streak_days || 18) : 0,
+    cognitiveScore: aiPerimeter.recoveryProgress ? (profile?.mindspace_score || 78) : 0,
     primaryObjective: profile?.primary_goal || 'Improve Deep Focus',
-    dominantTrigger: 'Boredom at 8:00 PM',
+    dominantTrigger: aiPerimeter.usageDurations ? 'Boredom at 8:00 PM' : 'Restricted by Perimeter',
   };
 
   const updatePrivacySettings = (settings: Partial<CoachPrivacySettings>) => {

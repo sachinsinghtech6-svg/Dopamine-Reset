@@ -11,6 +11,7 @@ import { Brandmark } from '@/components/ui/Brandmark';
 
 import { RecoveryProvider, useRecovery } from '@/context/RecoveryContext';
 import { RecoveryHub } from '@/components/recovery/RecoveryHub';
+import { SettingsProvider } from '@/context/SettingsContext';
 
 const AuthenticatedRecoveryApp: React.FC<{
   currentView: 'app' | 'showcase';
@@ -110,7 +111,9 @@ export const App: React.FC = () => {
       <ThemeProvider>
         <ToastProvider>
           <AuthProvider>
-            <MainNavigator />
+            <SettingsProvider>
+              <MainNavigator />
+            </SettingsProvider>
           </AuthProvider>
         </ToastProvider>
       </ThemeProvider>

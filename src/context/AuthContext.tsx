@@ -199,6 +199,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setError(error.message);
         return { success: false, error: error.message };
       }
+
+      // If Supabase didn't return an immediate session, sign in directly to acquire valid JWT
+      if (data.user && !data.session) {
+        const loginRes = await supabase.auth.signInWithPassword({ email, password });
+        if (loginRes.data.session) {
+          setUser(loginRes.data.user);
+          setSession(loginRes.data.session);
+          await fetchProfile(loginRes.data.user.id);
+          return { success: true };
+        } else if (loginRes.error) {
+          setError(loginRes.error.message);
+          return { success: false, error: loginRes.error.message };
+        }
+      }
+
       setUser(data.user);
       setSession(data.session);
       if (data.user) {
@@ -267,28 +282,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: true };
     }
 
-    if (!user || !supabase) {
-      return { success: false, error: 'User not authenticated.' };
+    if (!supabase) {
+      return { success: false, error: 'Authentication service not configured.' };
+    }
+
+    // Verify session
+    const { data: sessionData } = await supabase.auth.getSession();
+    const activeUser = sessionData.session?.user || user;
+
+    if (!activeUser) {
+      return { success: false, error: 'User session not active. Please sign in to activate your plan.' };
     }
 
     try {
       const payload = {
-        id: user.id,
-        email: user.email,
+        id: activeUser.id,
+        email: activeUser.email,
         ...data,
         onboarding_completed: true,
         updated_at: new Date().toISOString(),
       };
 
-      const { error } = await supabase
+      // 1. Try update first as profile row is pre-created on signup
+      let { error } = await supabase
         .from('profiles')
-        .upsert(payload, { onConflict: 'id' });
+        .update(payload)
+        .eq('id', activeUser.id);
+
+      // 2. Fall back to upsert if row was not yet created
+      if (error) {
+        const upsertRes = await supabase
+          .from('profiles')
+          .upsert(payload, { onConflict: 'id' });
+        error = upsertRes.error;
+      }
 
       if (error) {
         return { success: false, error: error.message };
       }
 
-      await fetchProfile(user.id);
+      // Optimistically update local profile state so dashboard renders immediately
+      setProfile((prev) => ({
+        ...(prev || {}),
+        id: activeUser.id,
+        email: activeUser.email || null,
+        ...data,
+        onboarding_completed: true,
+      } as UserProfile));
+
+      await fetchProfile(activeUser.id);
       return { success: true };
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to persist calibration profile';
